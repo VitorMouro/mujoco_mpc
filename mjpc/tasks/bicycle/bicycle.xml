@@ -1,0 +1,88 @@
+<mujoco>
+
+    <compiler assetdir="assets"/>
+
+    <asset>
+        <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
+        <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+        <mesh file="frame.stl"/>
+        <mesh file="steering.stl"/>
+        <mesh file="seat.stl"/>
+        <mesh file="crank.stl"/>
+        <mesh file="pedal_left.stl"/>
+        <mesh file="pedal_right.stl"/>
+        <mesh file="front_wheel.stl"/>
+        <mesh file="rear_wheel.stl"/>
+    </asset>
+
+    <default>
+    </default>
+
+    <worldbody>
+        <geom type="plane" size="100 100 .01" material="grid"/>
+
+        <!-- BICYCLE -->
+        <body name="bicycle" pos="0 0 .5">
+            <freejoint/>
+            <site name="tip"/>
+            <light name="sun" pos="0 0 20" dir="0 0 -1" diffuse="1 1 1" mode="trackcom"/>
+            <geom type="mesh" mesh="frame" mass="10"/>
+            <geom type="mesh" mesh="seat" mass="1"/>
+
+            <!-- STEERING -->
+            <body name="steering">
+                <joint type="hinge" name="steering_joint" axis="-0.11 0 0.24" pos="0.292836 0 0.512624"/>
+                <geom type="mesh" mesh="steering" mass="2"/>
+
+                <!-- FRONT WHEEL -->
+                <body name="front_wheel">
+                    <joint type="hinge" name="front_wheel_joint" axis="0 1 0" pos="0.6217 0 -0.06129"/>
+                    <geom type="mesh" mesh="front_wheel" condim="4" friction=".7" solimp=".9 .99 .003" solref=".015 1" mass="1.5"/>
+                </body>
+            </body>
+
+            <!-- REAR WHEEL -->
+            <body name="rear_wheel">
+                <joint type="hinge" name="rear_wheel_joint" axis="0 1 0" pos="-0.4937 0 -0.06129"/>
+                <geom type="mesh" mesh="rear_wheel" condim="4" friction=".7" solimp=".9 .99 .003" solref=".015 1" mass="1.5"/>
+            </body>
+
+            <!-- CRANK -->
+            <body name="crank">
+                <joint type="hinge" name="crank_joint" pos="-0.025658 0 -0.110423" axis="0 1 0"/>
+                <geom type="mesh" mesh="crank" mass=".3"/>
+                <body name="pedal_left">
+                    <joint type="hinge" pos="-0.129889 0.0573 0.009774" axis="0 1 0"/>
+                    <geom type="mesh" mesh="pedal_left" mass="0.1"/>
+                </body>
+                <body name="pedal_right">
+                    <joint type="hinge" pos="0.078673 -0.0573 -0.234007" axis="0 1 0"/>
+                    <geom type="mesh" mesh="pedal_right" mass="0.1"/>
+                </body>
+            </body>
+
+        </body>
+
+    </worldbody>
+
+    <tendon>
+        <fixed name="forward">
+            <joint joint="crank_joint" coef="1"/>
+        </fixed>
+        <fixed name="turn">
+            <joint joint="steering_joint" coef="1"/>
+        </fixed>
+    </tendon>
+
+    <actuator>
+        <motor name="pedal " joint="crank_joint" gear="100" ctrlrange="0 1"/>
+        <motor name="steer " joint="steering_joint" gear="1" ctrlrange="-1 1"/>
+    </actuator>
+
+    
+    <equality>
+        <!-- CHAIN DRIVE 2.75:1 -->
+        <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 2.75 0 0 0"/>
+    </equality>
+
+</mujoco>
