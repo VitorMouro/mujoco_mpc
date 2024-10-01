@@ -17,11 +17,13 @@
         <numeric name="sampling_exploration" data="0.05" />
         <numeric name="gradient_spline_points" data="10" />
         <numeric name="residual_Speed Goal" data="0 0 20" />
+        <numeric name="residual_Height Goal" data="0 0 20" />
     </custom>
 
     <sensor>
         <!-- Target velocity -->
-        <user name="Velocity" dim="2" user="0 1.0 0 10.0"/>
+        <user name="Velocity" dim="1" user="0 1.0 0 10.0"/>
+        <user name="Height" dim="1" user="0 1.0 0 10.0"/>
         <!--<user name="Distance" dim="2" user="0 50.0 0 100.0"/>
         <user name="Velocity" dim="2" user="0  1.0 0 10.0"/>
         <user name="Control" dim="1" user="0 0.05 0.0 1.0"/>-->
@@ -32,6 +34,7 @@
         <!--<framepos name="position" objtype="site" objname="tip"/>
         <framelinvel name="velocity" objtype="site" objname="tip"/>-->
         <subtreelinvel name="frame_subtreelinvel" body="bicycle"/>
+        <framepos      name="frame_position" objtype="xbody" objname="bicycle"/>
     </sensor>
 
 <!--    <keyframe>-->

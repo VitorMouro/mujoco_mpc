@@ -24,7 +24,7 @@
         <!-- BICYCLE -->
         <body name="bicycle" pos="0 0 .5">
             <freejoint/>
-            <site name="tip"/>
+            <site name="tip" pos="0 0 1"/>
             <light name="sun" pos="0 0 20" dir="0 0 -1" diffuse="1 1 1" mode="trackcom"/>
             <geom type="mesh" mesh="frame" mass="10"/>
             <geom type="mesh" mesh="seat" mass="1"/>
@@ -84,5 +84,9 @@
         <!-- CHAIN DRIVE 2.75:1 -->
         <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 2.75 0 0 0"/>
     </equality>
+
+    <contact>
+      <exclude body1="crank" body2="rear_wheel"/>
+    </contact>
 
 </mujoco>
