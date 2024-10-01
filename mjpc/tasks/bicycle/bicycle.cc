@@ -30,10 +30,12 @@ std::string Bicycle::Name() const { return "Bicycle"; }
 void Bicycle::ResidualFn::Residual(const mjModel* model, const mjData* data,
                                     double* residual) const {
 
-  residual[0] = std::cos(data->qpos[1]) - 1;
+  double com_vel = SensorByName(model, data, "frame_subtreelinvel")[0];
+  residual[0] = com_vel - parameters_[0];
+  /*residual[0] = std::cos(data->qpos[1]) - 1;
   residual[1] = data->qpos[0] - parameters_[0];
   residual[2] = data->qvel[1];
-  residual[3] = data->ctrl[0];
+  residual[3] = data->ctrl[0];*/
 }
 
 }  // namespace mjpc

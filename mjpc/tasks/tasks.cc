@@ -40,6 +40,8 @@
 #include "mjpc/tasks/shadow_reorient/hand.h"
 #include "mjpc/tasks/swimmer/swimmer.h"
 #include "mjpc/tasks/walker/walker.h"
+// My task
+#include "mjpc/tasks/bicycle/bicycle.h"
 
 namespace mjpc {
 
@@ -69,6 +71,8 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
       std::make_shared<QuadrupedHill>(),
       std::make_shared<Swimmer>(),
       std::make_shared<Walker>(),
+      // My task
+      std::make_shared<Bicycle>()
   };
 }
 }  // namespace mjpc

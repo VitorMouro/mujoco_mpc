@@ -36,6 +36,8 @@ add_library(
   utilities.h
   tasks/tasks.cc
   tasks/tasks.h
+  tasks/bicycle/bicycle.cc
+  tasks/bicycle/bicycle.h
   tasks/acrobot/acrobot.cc
   tasks/acrobot/acrobot.h
   tasks/allegro/allegro.cc
