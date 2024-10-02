@@ -1,6 +1,13 @@
 <mujoco>
 
+    <option timestep="0.02">
+    </option>
+  
     <compiler assetdir="assets"/>
+
+    <visual>
+      <global azimuth="0" elevation="-25" />
+    </visual>
 
     <asset>
         <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
@@ -13,19 +20,25 @@
         <mesh file="pedal_right.stl"/>
         <mesh file="front_wheel.stl"/>
         <mesh file="rear_wheel.stl"/>
+        <mesh file="front_wheel_hub.stl"/>
+        <mesh file="rear_wheel_hub.stl"/>
     </asset>
 
     <default>
     </default>
 
     <worldbody>
-        <geom type="plane" size="100 100 .01" material="grid"/>
+        <geom type="plane" size="200 200 .01" material="grid"/>
 
         <!-- BICYCLE -->
+        <camera name="float_far"  pos="-4 0 2" xyaxes="0 -1 0 .5 0 1" mode="trackcom" fovy="60"/>
+        <camera name="float_far2"  pos="4 0 1" xyaxes="0 1 0 .5 0 1" mode="trackcom" fovy="90"/>
         <body name="bicycle" pos="0 0 .5">
             <freejoint/>
+            <light name="light" pos="0 0 2" mode="trackcom"/>
+            <camera name="right" pos="0 -4 1" zaxis="0 -1 0"/>
+            <camera name="top" pos="0 0 4" zaxis="0 0 1"/>
             <site name="tip" pos="0 0 1"/>
-            <light name="sun" pos="0 0 20" dir="0 0 -1" diffuse="1 1 1" mode="trackcom"/>
             <geom type="mesh" mesh="frame" mass="10"/>
             <geom type="mesh" mesh="seat" mass="1"/>
 
@@ -38,6 +51,7 @@
                 <body name="front_wheel">
                     <joint type="hinge" name="front_wheel_joint" axis="0 1 0" pos="0.6217 0 -0.06129"/>
                     <geom type="mesh" mesh="front_wheel" condim="4" friction=".7" solimp=".9 .99 .003" solref=".015 1" mass="1.5"/>
+                    <geom type="mesh" mesh="front_wheel_hub"/>
                 </body>
             </body>
 
@@ -45,6 +59,7 @@
             <body name="rear_wheel">
                 <joint type="hinge" name="rear_wheel_joint" axis="0 1 0" pos="-0.4937 0 -0.06129"/>
                 <geom type="mesh" mesh="rear_wheel" condim="4" friction=".7" solimp=".9 .99 .003" solref=".015 1" mass="1.5"/>
+                <geom type="mesh" mesh="rear_wheel_hub"/>
             </body>
 
             <!-- CRANK -->
@@ -87,6 +102,16 @@
 
     <contact>
       <exclude body1="crank" body2="rear_wheel"/>
+      <exclude body1="pedal_left" body2="rear_wheel"/>
+      <exclude body1="pedal_right" body2="rear_wheel"/>
+      
+      <exclude body1="crank" body2="front_wheel"/>
+      <exclude body1="pedal_left" body2="front_wheel"/>
+      <exclude body1="pedal_right" body2="front_wheel"/>
+      <exclude body1="bicycle" body2="front_wheel"/>
+
+      <exclude body1="pedal_left" body2="bicycle"/>
+      <exclude body1="pedal_right" body2="bicycle"/>
     </contact>
 
 </mujoco>

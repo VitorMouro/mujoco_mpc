@@ -47,6 +47,10 @@ namespace mjpc {
 
 std::vector<std::shared_ptr<Task>> GetTasks() {
   return {
+      // My task
+      std::make_shared<Bicycle>(),
+      
+
       std::make_shared<Acrobot>(),
       std::make_shared<Allegro>(),
       std::make_shared<aloha::Handover>(),
@@ -71,8 +75,6 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
       std::make_shared<QuadrupedHill>(),
       std::make_shared<Swimmer>(),
       std::make_shared<Walker>(),
-      // My task
-      std::make_shared<Bicycle>()
   };
 }
 }  // namespace mjpc

@@ -31,8 +31,10 @@ void Bicycle::ResidualFn::Residual(const mjModel* model, const mjData* data,
                                     double* residual) const {
 
   // Velocity target
-  double com_vel = SensorByName(model, data, "frame_subtreelinvel")[0];
-  residual[0] = com_vel - parameters_[0];
+  double x_vel = SensorByName(model, data, "frame_subtreelinvel")[0];
+  double y_vel = SensorByName(model, data, "frame_subtreelinvel")[1];
+  double resultant_vel = std::sqrt(x_vel * x_vel + y_vel * y_vel);
+  residual[0] = resultant_vel - parameters_[0];
 
   // Height target
   double height = SensorByName(model, data, "trace0")[2];

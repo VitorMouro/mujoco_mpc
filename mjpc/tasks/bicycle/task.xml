@@ -1,11 +1,6 @@
-<mujoco model="Cart-Pole Swing-Up">
+<mujoco model="Bicycle Balance">
     <include file="../common.xml"/>
-    <!-- modified from: https://github.com/google-deepmind/dm_control/blob/main/dm_control/suite/cartpole.xml -->
     <include file="bicycle.xml" />
-
-<!--    <size memory="8K"/>-->
-
-  <!-- <size njmax="8000" nconmax="4000"/> -->
 
     <custom>
         <numeric name="agent_planner" data="0" />
@@ -16,13 +11,13 @@
         <numeric name="sampling_spline_points" data="10" />
         <numeric name="sampling_exploration" data="0.05" />
         <numeric name="gradient_spline_points" data="10" />
-        <numeric name="residual_Speed Goal" data="0 0 20" />
-        <numeric name="residual_Height Goal" data="0 0 20" />
+        <numeric name="residual_Speed Goal" data="5 0 20" />
+        <numeric name="residual_Height Goal" data="1.8 0 20" />
     </custom>
 
     <sensor>
         <!-- Target velocity -->
-        <user name="Velocity" dim="1" user="0 1.0 0 10.0"/>
+        <user name="Velocity" dim="1" user="0 0.1 0 10.0"/>
         <user name="Height" dim="1" user="0 1.0 0 10.0"/>
         <!--<user name="Distance" dim="2" user="0 50.0 0 100.0"/>
         <user name="Velocity" dim="2" user="0  1.0 0 10.0"/>
