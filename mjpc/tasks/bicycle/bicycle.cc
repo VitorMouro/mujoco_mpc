@@ -40,6 +40,12 @@ void Bicycle::ResidualFn::Residual(const mjModel* model, const mjData* data,
   double height = SensorByName(model, data, "trace0")[2];
   residual[1] = height - parameters_[1];
 
+  // Heading target
+  double heading_x = SensorByName(model, data, "frame_xaxis")[0];
+  double heading_y = SensorByName(model, data, "frame_xaxis")[1];
+  double heading = std::atan2(heading_y, heading_x);
+  residual[2] = heading - parameters_[2];
+
   /*residual[0] = std::cos(data->qpos[1]) - 1;
   residual[1] = data->qpos[0] - parameters_[0];
   residual[2] = data->qvel[1];

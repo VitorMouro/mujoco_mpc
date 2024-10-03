@@ -67,11 +67,11 @@
                 <joint type="hinge" name="crank_joint" pos="-0.025658 0 -0.110423" axis="0 1 0"/>
                 <geom type="mesh" mesh="crank" mass=".3"/>
                 <body name="pedal_left">
-                    <joint type="hinge" pos="-0.129889 0.0573 0.009774" axis="0 1 0"/>
+                    <joint type="hinge" name="pedal_left_joint" pos="-0.129889 0.0573 0.009774" axis="0 1 0"/>
                     <geom type="mesh" mesh="pedal_left" mass="0.1"/>
                 </body>
                 <body name="pedal_right">
-                    <joint type="hinge" pos="0.078673 -0.0573 -0.234007" axis="0 1 0"/>
+                    <joint type="hinge" name="pedal_right_joint" pos="0.078673 -0.0573 -0.234007" axis="0 1 0"/>
                     <geom type="mesh" mesh="pedal_right" mass="0.1"/>
                 </body>
             </body>

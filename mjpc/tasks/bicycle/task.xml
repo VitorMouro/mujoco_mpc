@@ -1,6 +1,7 @@
 <mujoco model="Bicycle Balance">
     <include file="../common.xml"/>
     <include file="bicycle.xml" />
+    <include file="humanoid.xml"/>
 
     <custom>
         <numeric name="agent_planner" data="0" />
@@ -13,12 +14,14 @@
         <numeric name="gradient_spline_points" data="10" />
         <numeric name="residual_Speed Goal" data="5 0 20" />
         <numeric name="residual_Height Goal" data="1.8 0 20" />
+        <numeric name="residual_Heading Goal" data="0 -3.1415 3.1415"/>
     </custom>
 
     <sensor>
         <!-- Target velocity -->
         <user name="Velocity" dim="1" user="0 0.1 0 10.0"/>
         <user name="Height" dim="1" user="0 1.0 0 10.0"/>
+        <user name="Heading" dim="1" user="0 0 0 10.0"/>
         <!--<user name="Distance" dim="2" user="0 50.0 0 100.0"/>
         <user name="Velocity" dim="2" user="0  1.0 0 10.0"/>
         <user name="Control" dim="1" user="0 0.05 0.0 1.0"/>-->
@@ -30,10 +33,12 @@
         <framelinvel name="velocity" objtype="site" objname="tip"/>-->
         <subtreelinvel name="frame_subtreelinvel" body="bicycle"/>
         <framepos      name="frame_position" objtype="xbody" objname="bicycle"/>
+        <framexaxis name="frame_xaxis" objtype="xbody" objname="bicycle"/>
     </sensor>
 
-<!--    <keyframe>-->
-<!--        &lt;!&ndash; Start from bottom position. &ndash;&gt;-->
-<!--        <key name="home" qpos="3.142 0"/>-->
-<!--    </keyframe>-->
+    <keyframe> 
+      <!--<key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 0 0 0 -1.45 0 0 0 0 0 -1.45 0 0 0 0 0 0 0 0'/>-->
+      <key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 -0.0523825 -0.0605495 -0.110801 -0.2903 0.226902 0 -0.069835 -0.002523 -0.585536 -1.83151 -0.750522 0.008727 0.502835 -0.205845 -1.10366 0.502835 -0.205845 -1.10366'/>
+    </keyframe>
+    
 </mujoco>
