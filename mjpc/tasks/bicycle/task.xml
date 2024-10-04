@@ -36,6 +36,21 @@
         <framexaxis name="frame_xaxis" objtype="xbody" objname="bicycle"/>
     </sensor>
 
+  <contact>
+    <exclude body1="steering" body2="lower_arm_right"/>
+    <exclude body1="steering" body2="lower_arm_left"/>
+    <exclude body1="steering" body2="hand_left"/>
+    <exclude body1="steering" body2="hand_right"/>
+  </contact>
+
+  <equality>
+    <connect site1="left_hand_site" site2="left_steering_site"/> 
+    <connect site1="right_hand_site" site2="right_steering_site"/> 
+    <connect site1="left_foot_site" site2="left_pedal_site"/> 
+    <connect site1="right_foot_site" site2="right_pedal_site"/> 
+    <connect site1="butt_site" site2="seat_site"/> 
+  </equality>
+
     <keyframe> 
       <!--<key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 0 0 0 -1.45 0 0 0 0 0 -1.45 0 0 0 0 0 0 0 0'/>-->
       <key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 -0.0523825 -0.0605495 -0.110801 -0.2903 0.226902 0 -0.069835 -0.002523 -0.585536 -1.83151 -0.750522 0.008727 0.502835 -0.205845 -1.10366 0.502835 -0.205845 -1.10366'/>

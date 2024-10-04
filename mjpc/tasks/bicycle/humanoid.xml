@@ -117,6 +117,7 @@
         <joint name="abdomen_z" pos="0 0 .065" axis="0 0 1" range="-45 45" class="joint_big_stiff"/>
         <joint name="abdomen_y" pos="0 0 .065" axis="0 1 0" range="-75 30" class="joint_big"/>
         <body name="pelvis" pos="0 0 -.165">
+          <site name="butt_site" pos="-0.05 0 -0.08"/>
           <joint name="abdomen_x" pos="0 0 .1" axis="1 0 0" range="-35 35" class="joint_big"/>
           <geom name="butt" fromto="-.02 -.07 0 -.02 .07 0" size=".09"/>
           <body name="thigh_right" pos="0 -.1 -.04">
@@ -128,6 +129,7 @@
               <joint name="knee_right" class="knee"/>
               <geom name="shin_right" class="shin"/>
               <body name="foot_right" pos="0 0 -.39">
+                <site name="right_foot_site" pos="0.1 0 0"/>
                 <joint name="ankle_y_right" class="ankle_y"/>
                 <joint name="ankle_x_right" class="ankle_x" axis="1 0 .5"/>
                 <geom name="foot1_right" class="foot1"/>
@@ -144,6 +146,7 @@
               <joint name="knee_left" class="knee"/>
               <geom name="shin_left" fromto="0 0 0 0 0 -.3" class="shin"/>
               <body name="foot_left" pos="0 0 -.39">
+                <site name="left_foot_site" pos="0.1 0 0"/>
                 <joint name="ankle_y_left" class="ankle_y"/>
                 <joint name="ankle_x_left" class="ankle_x" axis="-1 0 -.5"/>
                 <geom name="foot1_left" class="foot1"/>
@@ -161,6 +164,7 @@
           <joint name="elbow_right" axis="0 -1 1" class="elbow"/>
           <geom name="lower_arm_right" fromto=".01 .01 .01 .17 .17 .17" class="arm_lower"/>
           <body name="hand_right" pos=".18 .18 .18">
+            <site name="right_hand_site"/>
             <geom name="hand_right" zaxis="1 1 1" class="hand"/>
           </body>
         </body>
@@ -173,6 +177,7 @@
           <joint name="elbow_left" axis="0 -1 -1" class="elbow"/>
           <geom name="lower_arm_left" fromto=".01 -.01 .01 .17 -.17 .17" class="arm_lower"/>
           <body name="hand_left" pos=".18 -.18 .18">
+            <site name="left_hand_site" />
             <geom name="hand_left" zaxis="1 -1 1" class="hand"/>
           </body>
         </body>

@@ -463,9 +463,9 @@ void Agent::ModifyScene(mjvScene* scn) {
       double rgb_average = (g->rgba[0] + g->rgba[1] + g->rgba[2]) / 3;
       g->rgba[0] = g->rgba[1] = g->rgba[2] = rgb_average;
       // specifically for the hand task, make grayscale cube.
-      if (cube > -1 && graycube > -1 && g->texid == cube) {
-        g->texid = graycube;
-      }
+      // if (cube > -1 && graycube > -1 && g->texid == cube) {
+        // g->texid = graycube;
+      // }
     }
   }
 

@@ -56,7 +56,7 @@ set(MUJOCO_BUILD_TESTS OFF)
 set(MUJOCO_TEST_PYTHON_UTIL OFF)
 
 set(MUJOCO_MPC_MUJOCO_GIT_TAG
-    3.1.4
+    3.2.3
     CACHE STRING "Git revision for MuJoCo."
 )
 

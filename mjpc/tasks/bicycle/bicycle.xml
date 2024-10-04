@@ -38,7 +38,8 @@
             <light name="light" pos="0 0 2" mode="trackcom"/>
             <camera name="right" pos="0 -4 1" zaxis="0 -1 0"/>
             <camera name="top" pos="0 0 4" zaxis="0 0 1"/>
-            <site name="tip" pos="0 0 1"/>
+            <site name="tip" pos="0 0 0.5"/>
+            <site name="seat_site" pos="-0.28 0 0.52736"/>
             <geom type="mesh" mesh="frame" mass="10"/>
             <geom type="mesh" mesh="seat" mass="1"/>
 
@@ -47,6 +48,8 @@
                 <joint type="hinge" name="steering_joint" axis="-0.11 0 0.24" pos="0.292836 0 0.512624"/>
                 <geom type="mesh" mesh="steering" mass="2"/>
 
+                <site name="right_steering_site" pos="0.11014 -0.22773 0.68226"/>
+                <site name="left_steering_site" pos="0.11014 0.22773 0.68226"/>
                 <!-- FRONT WHEEL -->
                 <body name="front_wheel">
                     <joint type="hinge" name="front_wheel_joint" axis="0 1 0" pos="0.6217 0 -0.06129"/>
@@ -67,10 +70,12 @@
                 <joint type="hinge" name="crank_joint" pos="-0.025658 0 -0.110423" axis="0 1 0"/>
                 <geom type="mesh" mesh="crank" mass=".3"/>
                 <body name="pedal_left">
+                    <site name="left_pedal_site" pos="-0.12727 0.13729 0.048681"/> 
                     <joint type="hinge" name="pedal_left_joint" pos="-0.129889 0.0573 0.009774" axis="0 1 0"/>
                     <geom type="mesh" mesh="pedal_left" mass="0.1"/>
                 </body>
                 <body name="pedal_right">
+                    <site name="right_pedal_site" pos="0.077678 -0.13784 -0.19456"/>
                     <joint type="hinge" name="pedal_right_joint" pos="0.078673 -0.0573 -0.234007" axis="0 1 0"/>
                     <geom type="mesh" mesh="pedal_right" mass="0.1"/>
                 </body>
