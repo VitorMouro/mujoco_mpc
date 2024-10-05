@@ -21,6 +21,7 @@ class Bicycle : public Task {
   };
 
   Bicycle() : residual_(this) {}
+  void TransitionLocked(mjModel* model, mjData* data) override;
 
  protected:
   std::unique_ptr<mjpc::ResidualFn> ResidualLocked() const override {
@@ -30,6 +31,7 @@ class Bicycle : public Task {
 
  private:
   ResidualFn residual_;
+  bool locked = true;
 };
 }  // namespace mjpc
 

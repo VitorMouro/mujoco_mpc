@@ -79,7 +79,7 @@
         </default>
       </default>
       <default class="knee">
-        <joint pos="0 0 .02" axis="0 -1 0" range="-160 2"/>
+        <joint pos="0 0 .02" axis="0 -1 0" range="-160 -30"/>
       </default>
       <default class="ankle">
         <joint range="-50 50"/>

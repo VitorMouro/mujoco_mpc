@@ -451,8 +451,8 @@ int Agent::SetModeByName(std::string_view name) {
 void Agent::ModifyScene(mjvScene* scn) {
   // if acting is off make all geom colors grayscale
   if (!action_enabled) {
-    int cube = mj_name2id(model_, mjOBJ_TEXTURE, "cube");
-    int graycube = mj_name2id(model_, mjOBJ_TEXTURE, "graycube");
+    // int cube = mj_name2id(model_, mjOBJ_TEXTURE, "cube");
+    //int graycube = mj_name2id(model_, mjOBJ_TEXTURE, "graycube");
     for (int i = 0; i < scn->ngeom; i++) {
       mjvGeom* g = scn->geoms + i;
       // skip static and decor geoms
