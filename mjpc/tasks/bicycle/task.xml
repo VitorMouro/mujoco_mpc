@@ -2,16 +2,19 @@
     <include file="../common.xml"/>
     <include file="bicycle.xml" />
     <include file="humanoid.xml"/>
-
+    
+    <option timestep="0.02"></option>
+  
+  
     <custom>
         <numeric name="agent_planner" data="0" />
-        <numeric name="agent_horizon" data="2.0" />
-        <numeric name="agent_timestep" data="0.01" />
+        <numeric name="agent_horizon" data="0.8" />
+        <numeric name="agent_timestep" data="0.02" />
         <numeric name="sampling_sample_width" data="0.01" />
         <numeric name="sampling_control_width" data="0.015" />
-        <numeric name="sampling_spline_points" data="10" />
+        <numeric name="sampling_spline_points" data="3" />
         <numeric name="sampling_exploration" data="0.05" />
-        <numeric name="gradient_spline_points" data="10" />
+        <numeric name="gradient_spline_points" data="5" />
         <numeric name="residual_Speed Goal" data="5 0 20" />
         <numeric name="residual_Height Goal" data="1.8 0 20" />
         <numeric name="residual_Heading Goal" data="0 -3.1415 3.1415"/>
@@ -19,21 +22,14 @@
 
     <sensor>
         <!-- Target velocity -->
-        <user name="Velocity" dim="1" user="0 0.1 0 10.0"/>
+        <user name="Velocity" dim="1" user="0 0.1 0 3.0"/>
         <user name="Height" dim="1" user="0 1.0 0 10.0"/>
-        <user name="Heading" dim="1" user="0 0 0 10.0"/>
-        <!--<user name="Distance" dim="2" user="0 50.0 0 100.0"/>
-        <user name="Velocity" dim="2" user="0  1.0 0 10.0"/>
-        <user name="Control" dim="1" user="0 0.05 0.0 1.0"/>-->
+        <user name="Control" dim="21" user="3 0.025 0.0 0.1 0.3" />
         
         <!-- Trace -->
         <framepos name="trace0" objtype="site" objname="tip"/>
         
-        <!--<framepos name="position" objtype="site" objname="tip"/>
-        <framelinvel name="velocity" objtype="site" objname="tip"/>-->
         <subtreelinvel name="frame_subtreelinvel" body="bicycle"/>
-        <framepos      name="frame_position" objtype="xbody" objname="bicycle"/>
-        <framexaxis name="frame_xaxis" objtype="xbody" objname="bicycle"/>
     </sensor>
 
   <contact>
@@ -41,19 +37,22 @@
     <exclude body1="steering" body2="lower_arm_left"/>
     <exclude body1="steering" body2="hand_left"/>
     <exclude body1="steering" body2="hand_right"/>
+    <exclude body1="crank" body2="foot_right"/>
+    <exclude body1="crank" body2="foot_left"/>
+    <exclude body1="crank" body2="shin_right"/>
+    <exclude body1="crank" body2="shin_left"/>
   </contact>
 
   <equality>
     <connect site1="left_hand_site" site2="left_steering_site"/> 
     <connect site1="right_hand_site" site2="right_steering_site"/> 
-    <connect site1="left_foot_site" site2="left_pedal_site"/> 
-    <connect site1="right_foot_site" site2="right_pedal_site"/> 
-    <connect site1="butt_site" site2="seat_site"/> 
+    <weld site1="left_foot_site" site2="left_pedal_site" solimp="0.99 0.999 0.001 0.5 2"/> 
+    <weld site1="right_foot_site" site2="right_pedal_site" solimp="0.99 0.999 0.001 0.5 2"/> 
+    <weld site1="butt_site" site2="seat_site" solimp="0.99 0.999 0.001 0.5 2"/> 
   </equality>
 
     <keyframe> 
-      <!--<key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 0 0 0 -1.45 0 0 0 0 0 -1.45 0 0 0 0 0 0 0 0'/>-->
-      <key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 0 0 0 -0.25 0 1.55 1 0 0 0 0 -0.26 0 -0.0523825 -0.0605495 -0.110801 -0.2903 0.226902 0 -0.069835 -0.002523 -0.585536 -1.83151 -0.750522 0.008727 0.502835 -0.205845 -1.10366 0.502835 -0.205845 -1.10366'/>
+      <key name="home" qpos='0 0 0.5 1 0 0 0 0 0 0 1.5708 -1.5708 -1.5708 -0.25 0 1.5 1 0 0 0 0 -0.26 0 -0.083797 -0.0273915 -0.155307 -0.954859 -0.514893 0.08727 -0.083797 -0.0273915 -0.986095 -1.61942 -0.340353 0.008727 0.477525 -0.31974 -0.750274 0.477525 -0.31974 -0.750274'/>
     </keyframe>
     
 </mujoco>

@@ -1,7 +1,4 @@
 <mujoco>
-
-    <option timestep="0.02">
-    </option>
   
     <compiler assetdir="assets"/>
 
@@ -22,6 +19,10 @@
         <mesh file="rear_wheel.stl"/>
         <mesh file="front_wheel_hub.stl"/>
         <mesh file="rear_wheel_hub.stl"/>
+        <mesh file="left_handlebar.stl"/>
+        <mesh file="right_handlebar.stl"/>
+        <mesh file="left_handle.stl"/>
+        <mesh file="right_handle.stl"/>
     </asset>
 
     <default>
@@ -39,7 +40,7 @@
             <camera name="right" pos="0 -4 1" zaxis="0 -1 0"/>
             <camera name="top" pos="0 0 4" zaxis="0 0 1"/>
             <site name="tip" pos="0 0 0.5"/>
-            <site name="seat_site" pos="-0.28 0 0.52736"/>
+            <site name="seat_site" pos="-0.26 0 0.5"/>
             <geom type="mesh" mesh="frame" mass="10"/>
             <geom type="mesh" mesh="seat" mass="1"/>
 
@@ -47,6 +48,10 @@
             <body name="steering">
                 <joint type="hinge" name="steering_joint" axis="-0.11 0 0.24" pos="0.292836 0 0.512624"/>
                 <geom type="mesh" mesh="steering" mass="2"/>
+                <geom type="mesh" mesh="left_handlebar" mass="0.3"/>
+                <geom type="mesh" mesh="right_handlebar" mass="0.3"/>
+                <geom type="mesh" mesh="right_handle" mass="0.1"/>
+                <geom type="mesh" mesh="left_handle" mass="0.1"/>
 
                 <site name="right_steering_site" pos="0.11014 -0.22773 0.68226"/>
                 <site name="left_steering_site" pos="0.11014 0.22773 0.68226"/>
@@ -85,7 +90,7 @@
 
     </worldbody>
 
-    <tendon>
+    <!--<tendon>
         <fixed name="forward">
             <joint joint="crank_joint" coef="1"/>
         </fixed>
@@ -95,14 +100,14 @@
     </tendon>
 
     <actuator>
-        <motor name="pedal " joint="crank_joint" gear="100" ctrlrange="0 1"/>
+        <motor name="pedal " joint="crank_joint" gear="200" ctrlrange="0 1"/>
         <motor name="steer " joint="steering_joint" gear="1" ctrlrange="-1 1"/>
-    </actuator>
+    </actuator>-->
 
     
     <equality>
         <!-- CHAIN DRIVE 2.75:1 -->
-        <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 2.75 0 0 0"/>
+        <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 1.00 0 0 0"/>
     </equality>
 
     <contact>
