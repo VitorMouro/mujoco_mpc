@@ -22,6 +22,9 @@ class Bicycle : public Task {
 
   Bicycle() : residual_(this) {}
   void TransitionLocked(mjModel* model, mjData* data) override;
+  void ModifyScene(const mjModel* model, const mjData* data,
+                           mjvScene* scene) const override; 
+
 
  protected:
   std::unique_ptr<mjpc::ResidualFn> ResidualLocked() const override {

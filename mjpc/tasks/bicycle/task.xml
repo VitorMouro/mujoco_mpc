@@ -3,7 +3,7 @@
     <include file="bicycle.xml" />
     <include file="humanoid.xml"/>
     
-    <option timestep="0.01"></option>
+    <option timestep="0.02"></option>
   
   
     <custom>
@@ -48,9 +48,9 @@
   <equality>
     <connect site1="left_hand_site" site2="left_steering_site"/> 
     <connect site1="right_hand_site" site2="right_steering_site"/> 
-    <weld site1="left_foot_site" site2="left_pedal_site" /> 
-    <weld site1="right_foot_site" site2="right_pedal_site" /> 
-    <weld site1="butt_site" site2="seat_site" /> 
+    <weld site1="left_foot_site" site2="left_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/> 
+    <weld site1="right_foot_site" site2="right_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/> 
+    <weld site1="butt_site" site2="seat_site"/> 
   </equality>
 
     <keyframe> 

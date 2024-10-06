@@ -74,9 +74,22 @@ namespace mjpc
           counter);
     }
   }
+  
+  constexpr float kStepRgba[4] = {0.6, 0.8, 0.2, 1};
+
+  void Bicycle::ModifyScene(const mjModel* model, const mjData* data, mjvScene* scene) const
+  {
+    // Draw the goal heading
+    double size[3] = {0.05, 0.05, 2};
+    double pos[3] = {0, 0, 0};
+    AddGeom(scene, mjGEOM_ARROW, size, pos, nullptr, kStepRgba); 
+  }
+
 
   void Bicycle::TransitionLocked(mjModel *model, mjData *data)
   {
+    // printf("Crank: %f\n", data->qvel[9]);
+    // printf("Rear wheel: %f\n", data->qvel[8]);
     // if (!locked && data->qvel[9] >= data->qvel[8]) {
     //   data->eq_active[0] = 1;
     //   model->eq_data[0] = data->qpos[10] - data->qpos[9];
