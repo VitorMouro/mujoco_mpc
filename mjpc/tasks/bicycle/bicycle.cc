@@ -78,7 +78,7 @@ namespace mjpc
   void Bicycle::ModifyScene(const mjModel *model, const mjData *data, mjvScene *scene) const
   {
     // Draw the goal heading
-    mjtNum size[3] = {0.05, 0.05, 2};
+    mjtNum size[3] = {0.05, 0.05, residual_.parameters_[0]};
     mjtNum *pos = SensorByName(model, data, "bicycle_pos");
     double heading = residual_.parameters_[2];
     mjtNum mat_rotatedY[9] = {cos(mjPI/2), 0, sin(mjPI/2), 0, 1, 0, -sin(mjPI/2), 0, cos(mjPI/2)};
@@ -86,6 +86,8 @@ namespace mjpc
     mjtNum mat_res[9];
     mju_mulMatMat(mat_res, mat_rotatedY, mat_rotatedX, 3, 3, 3);
     AddGeom(scene, mjGEOM_ARROW, size, pos, mat_res, kStepRgba);
+    // Draw the current heading
+    // TODO
   }
 
   void Bicycle::TransitionLocked(mjModel *model, mjData *data)
