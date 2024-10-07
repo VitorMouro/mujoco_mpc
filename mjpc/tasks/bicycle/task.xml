@@ -30,6 +30,7 @@
         <framepos name="trace0" objtype="site" objname="tip"/>
         
         <subtreelinvel name="frame_subtreelinvel" body="bicycle"/>
+        <framepos name="bicycle_pos" objtype="body" objname="bicycle"/>
     </sensor>
 
   <contact>

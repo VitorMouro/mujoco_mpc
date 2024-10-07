@@ -38,6 +38,7 @@ namespace mjpc
     // Target speed for the goal heading
     double speed_goal = parameters_[0];
     double heading_goal = parameters_[2]; // In radians [-pi, pi]
+
     double target_velocity[3] = {speed_goal * cos(heading_goal),
                                  speed_goal * sin(heading_goal), 0};
     double *currect_velocity = SensorByName(model, data, "frame_subtreelinvel");
@@ -74,17 +75,19 @@ namespace mjpc
           counter);
     }
   }
-  
+
   constexpr float kStepRgba[4] = {0.6, 0.8, 0.2, 1};
 
-  void Bicycle::ModifyScene(const mjModel* model, const mjData* data, mjvScene* scene) const
+  void Bicycle::ModifyScene(const mjModel *model, const mjData *data, mjvScene *scene) const
   {
     // Draw the goal heading
-    double size[3] = {0.05, 0.05, 2};
-    double pos[3] = {0, 0, 0};
-    AddGeom(scene, mjGEOM_ARROW, size, pos, nullptr, kStepRgba); 
+    mjtNum size[3] = {0.05, 0.05, 2};
+    mjtNum *pos = SensorByName(model, data, "bicycle_pos");
+    // mjtNum mat[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    double heading = residual_.parameters_[2];
+    mjtNum mat[9] = {0, 0, 1, sin(heading), cos(heading), 0, -cos(heading), -sin(heading), 0};
+    AddGeom(scene, mjGEOM_ARROW, size, pos, mat, kStepRgba);
   }
-
 
   void Bicycle::TransitionLocked(mjModel *model, mjData *data)
   {
@@ -95,7 +98,7 @@ namespace mjpc
     //   model->eq_data[0] = data->qpos[10] - data->qpos[9];
     //   locked = true;
     //   printf("Locked mode\n");
-    // } 
+    // }
     // if (locked && data->qvel[9] < data->qvel[8]) {
     //   data->eq_active[0] = 0;
     //   locked = false;
