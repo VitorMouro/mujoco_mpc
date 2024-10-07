@@ -5,18 +5,17 @@
     
     <option timestep="0.02"></option>
   
-  
     <custom>
         <numeric name="agent_planner" data="0" />
-        <numeric name="agent_horizon" data="0.8" />
+        <numeric name="agent_horizon" data="1.1" />
         <numeric name="agent_timestep" data="0.02" />
         <numeric name="sampling_sample_width" data="0.01" />
         <numeric name="sampling_control_width" data="0.015" />
         <numeric name="sampling_spline_points" data="3" />
         <numeric name="sampling_exploration" data="0.05" />
         <numeric name="gradient_spline_points" data="5" />
-        <numeric name="residual_Speed Goal" data="5 0 20" />
-        <numeric name="residual_Height Goal" data="1.8 0 20" />
+        <numeric name="residual_Speed Goal" data="3.2 0 20" />
+        <numeric name="residual_Height Goal" data="1.1 0 20" />
         <numeric name="residual_Heading Goal" data="0 -3.1415 3.1415"/>
     </custom>
 
@@ -24,7 +23,7 @@
         <!-- Target velocity -->
         <user name="Velocity" dim="1" user="0 0.1 0 3.0"/>
         <user name="Height" dim="1" user="0 1.0 0 10.0"/>
-        <user name="Control" dim="21" user="3 0.025 0.0 0.1 0.3" />
+        <user name="Control" dim="21" user="3 0.05 0.0 0.1 0.3" />
         
         <!-- Trace -->
         <framepos name="trace0" objtype="site" objname="tip"/>

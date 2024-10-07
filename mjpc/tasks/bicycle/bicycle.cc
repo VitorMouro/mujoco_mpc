@@ -37,17 +37,14 @@ namespace mjpc
 
     // Target speed for the goal heading
     double speed_goal = parameters_[0];
-    double heading_goal = parameters_[2]; // In radians [-pi, pi]
+    double heading_goal = - parameters_[2]; // In radians [-pi, pi]
 
     double target_velocity[3] = {speed_goal * cos(heading_goal),
                                  speed_goal * sin(heading_goal), 0};
     double *currect_velocity = SensorByName(model, data, "frame_subtreelinvel");
-    double velocity_error[3] = {target_velocity[0] - currect_velocity[0],
-                                target_velocity[1] - currect_velocity[1],
-                                target_velocity[2] - currect_velocity[2]};
-    double velocity_error_norm = sqrt(velocity_error[0] * velocity_error[0] +
-                                      velocity_error[1] * velocity_error[1] +
-                                      velocity_error[2] * velocity_error[2]);
+    double velocity_error[3];  
+    mju_sub3(velocity_error, target_velocity, currect_velocity);
+    double velocity_error_norm = mju_norm3(velocity_error);
     residual[counter++] = velocity_error_norm;
 
     // Height target
@@ -83,10 +80,12 @@ namespace mjpc
     // Draw the goal heading
     mjtNum size[3] = {0.05, 0.05, 2};
     mjtNum *pos = SensorByName(model, data, "bicycle_pos");
-    // mjtNum mat[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     double heading = residual_.parameters_[2];
-    mjtNum mat[9] = {0, 0, 1, sin(heading), cos(heading), 0, -cos(heading), -sin(heading), 0};
-    AddGeom(scene, mjGEOM_ARROW, size, pos, mat, kStepRgba);
+    mjtNum mat_rotatedY[9] = {cos(mjPI/2), 0, sin(mjPI/2), 0, 1, 0, -sin(mjPI/2), 0, cos(mjPI/2)};
+    mjtNum mat_rotatedX[9] = {1, 0, 0, 0, cos(heading), -sin(heading), 0, sin(heading), cos(heading)};
+    mjtNum mat_res[9];
+    mju_mulMatMat(mat_res, mat_rotatedY, mat_rotatedX, 3, 3, 3);
+    AddGeom(scene, mjGEOM_ARROW, size, pos, mat_res, kStepRgba);
   }
 
   void Bicycle::TransitionLocked(mjModel *model, mjData *data)
