@@ -20,6 +20,7 @@
 #include <mujoco/mujoco.h>
 #include "mjpc/task.h"
 #include "mjpc/utilities.h"
+#include "GLFW/glfw3.h"
 
 namespace mjpc
 {
@@ -28,6 +29,26 @@ namespace mjpc
     return GetModelPath("bicycle/task.xml");
   }
   std::string Bicycle::Name() const { return "Bicycle"; }
+
+  int GetVelocityGoal(mjtNum *vel, mjtNum *head) {
+    int count;
+    const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+    if(count < 5)
+      return 0;
+
+    float heading = - axes[0] * M_PI;
+    if(head != nullptr)
+      *head = heading;
+    float max_speed = 5;
+    float speed = (axes[4] + 1)/2 * max_speed;
+    
+    if(vel != nullptr) {
+      vel[0] = speed * cos(heading);
+      vel[1] = speed * sin(heading);
+      vel[2] = 0;
+    }
+    return 1;
+  }
 
   void Bicycle::ResidualFn::Residual(const mjModel *model, const mjData *data,
                                      double *residual) const
@@ -41,6 +62,9 @@ namespace mjpc
 
     double target_velocity[3] = {speed_goal * cos(heading_goal),
                                  speed_goal * sin(heading_goal), 0};
+
+    GetVelocityGoal(target_velocity, nullptr);
+
     double *currect_velocity = SensorByName(model, data, "frame_subtreelinvel");
     double velocity_error[3];  
     mju_sub3(velocity_error, target_velocity, currect_velocity);
@@ -73,7 +97,8 @@ namespace mjpc
     }
   }
 
-  constexpr float kStepRgba[4] = {0.6, 0.8, 0.2, 1};
+  constexpr float targetVelocityRgba[4] = {0.6, 0.8, 0.2, 1};
+  constexpr float currentVelocityRgba[4] = {1, 0.3, 0.2, 1};
 
   void Bicycle::ModifyScene(const mjModel *model, const mjData *data, mjvScene *scene) const
   {
@@ -81,13 +106,21 @@ namespace mjpc
     mjtNum size[3] = {0.05, 0.05, residual_.parameters_[0]};
     mjtNum *pos = SensorByName(model, data, "bicycle_pos");
     double heading = residual_.parameters_[2];
+    mjtNum vel[3];
+    int joystick = GetVelocityGoal(vel, &heading);
+    if(joystick) {
+      size[2] = mju_norm3(vel);
+      heading *= -1;
+    }
     mjtNum mat_rotatedY[9] = {cos(mjPI/2), 0, sin(mjPI/2), 0, 1, 0, -sin(mjPI/2), 0, cos(mjPI/2)};
     mjtNum mat_rotatedX[9] = {1, 0, 0, 0, cos(heading), -sin(heading), 0, sin(heading), cos(heading)};
     mjtNum mat_res[9];
     mju_mulMatMat(mat_res, mat_rotatedY, mat_rotatedX, 3, 3, 3);
-    AddGeom(scene, mjGEOM_ARROW, size, pos, mat_res, kStepRgba);
+    AddGeom(scene, mjGEOM_ARROW, size, pos, mat_res, targetVelocityRgba);
     // Draw the current heading
-    // TODO
+    // double *current_velocity = SensorByName(model, data, "frame_subtreelinvel");
+    // mjtNum mat_current_heading[9]; 
+    // AddGeom(scene, mjGEOM_ARROW, size, pos, R, currentVelocityRgba);
   }
 
   void Bicycle::TransitionLocked(mjModel *model, mjData *data)
@@ -106,5 +139,6 @@ namespace mjpc
     //   printf("Unlocked mode\n");
     // }
   }
+
 
 } // namespace mjpc
