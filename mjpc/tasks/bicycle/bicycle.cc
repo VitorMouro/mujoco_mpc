@@ -76,10 +76,24 @@ namespace mjpc
     residual[counter++] = height - parameters_[1];
 
     // ----- action ----- //
-    mjtNum *start = data->ctrl + model->nu - 22;
+    mjtNum *start = data->ctrl + model->nu - 21;
     mju_copy(&residual[counter], start, 21);
     counter += 21;
 
+    // Pose target
+    // Arms are at last 6 positions of qpos
+    mjtNum arms[6] = {0.477525, -0.31974, -0.750274, 0.477525, -0.31974, -0.750274};
+    mjtNum arms_error[6];
+    mju_sub(arms_error, data->qpos + model->nq - 6, arms, 6);
+    mju_copy(&residual[counter], arms_error, 6);
+    counter += 6;
+    // Abdomen is at last model-nq - 21 to model-nq - 18
+    mjtNum abdomen[3] = {0.0, -0.26, 0.0};
+    mjtNum abdomen_error[3];
+    mju_sub(abdomen_error, data->qpos + model->nq - 21, abdomen, 3);
+    mju_copy(&residual[counter], abdomen_error, 3);
+    counter += 3;
+    
     int user_sensor_dim = 0;
     for (int i = 0; i < model->nsensor; i++)
     {

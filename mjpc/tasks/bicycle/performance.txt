@@ -1,0 +1,39 @@
+
+Rolling out 10000 steps per thread, at dt = 0.02...
+
+Summary for all 12 threads
+
+ Total simulation time  : 1.18 s
+ Total steps per second : 101624
+ Total realtime factor  : 2032.49 x
+ Total time per step    : 9.8 µs
+
+Details for thread 0
+
+ Simulation time      : 1.12 s
+ Steps per second     : 8933
+ Realtime factor      : 178.66 x
+ Time per step        : 111.9 µs
+
+ Contacts per step    : 10.94
+ Constraints per step : 72.80
+ Degrees of freedom   : 39
+
+ Internal profiler for thread 0, µs per step
+              step :  111.9  (100.00 %)
+           forward :  108.3  ( 96.78 %)
+          position :   56.9  ( 50.86 %)
+          velocity :    4.0  (  3.59 %)
+         actuation :    0.8  (  0.72 %)
+        constraint :   41.3  ( 36.89 %)
+           advance :    3.3  (  2.96 %)
+             other :    5.6  (  4.98 %)
+
+   position total  :   56.9  ( 50.86 %)
+     kinematics    :    4.8  (  4.33 %)
+     inertia       :    3.7  (  3.35 %)
+     collision     :   38.6  ( 34.48 %)
+       broadphase  :    8.0  (  7.17 %)
+       narrowphase :   28.8  ( 25.74 %)
+     make          :    9.4  (  8.40 %)
+     project       :    0.0  (  0.04 %)

@@ -40,6 +40,7 @@ namespace mjpc
   private:
     ResidualFn residual_;
     bool locked = true;
+
   };
 } // namespace mjpc
 
