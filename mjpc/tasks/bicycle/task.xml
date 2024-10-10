@@ -1,5 +1,6 @@
 <mujoco model="Bicycle Balance">
     <include file="../common.xml"/>
+    <include file="plane.xml"/>
     <include file="bicycle.xml" />
     <include file="humanoid.xml"/>
     
@@ -31,6 +32,7 @@
         
         <subtreelinvel name="frame_subtreelinvel" body="bicycle"/>
         <framepos name="bicycle_pos" objtype="body" objname="bicycle"/>
+        <framexaxis name="bicycle_xaxis" objtype="body" objname="bicycle"/>
     </sensor>
 
   <contact>
@@ -44,6 +46,9 @@
     <exclude body1="crank" body2="shin_left"/>
     <exclude body1="foot_right" body2="bicycle"/>
     <exclude body1="foot_left" body2="bicycle"/>
+    <exclude body1="foot_right" body2="pedal_right"/>
+    <exclude body1="foot_left" body2="pedal_left"/>
+    <exclude body1="pelvis" body2="bicycle"/>
   </contact>
 
   <equality>
@@ -51,7 +56,7 @@
     <connect site1="right_hand_site" site2="right_steering_site"/> 
     <weld site1="left_foot_site" site2="left_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/> 
     <weld site1="right_foot_site" site2="right_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/> 
-    <weld site1="butt_site" site2="seat_site"/> 
+    <connect site1="butt_site" site2="seat_site" solimp="0.95 0.99 0.001 0.5 2"/> 
   </equality>
 
     <keyframe> 

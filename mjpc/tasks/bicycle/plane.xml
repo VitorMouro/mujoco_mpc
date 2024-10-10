@@ -1,0 +1,14 @@
+<mujoco>
+
+    <asset>
+        <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
+        <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+   </asset>
+
+    <worldbody>
+        <geom type="plane" size="200 200 .01" material="grid"/>
+        <!-- Ramp -->
+        <geom type="box" size="2 2 0.1" pos="10 0 0.1" euler="0 -10 0" rgba="0.5 0.5 0.5 1"/>
+    </worldbody>
+
+</mujoco>
