@@ -8,7 +8,9 @@
     <worldbody>
         <geom type="plane" size="200 200 .01" material="grid"/>
         <!-- Ramp -->
-        <geom type="box" size="2 2 0.1" pos="10 0 0.1" euler="0 -10 0" rgba="0.5 0.5 0.5 1"/>
+        <geom type="box" size="2 2 0.05" pos="10 0 0.025" euler="0 -10 0" rgba="0.5 0.5 0.5 1"/>
+        <geom type="box" size="2 2 0.05" pos="14 0 0.025" euler="0 10 0" rgba="0.5 0.5 0.5 1"/>
+        
     </worldbody>
 
 </mujoco>

@@ -40,7 +40,7 @@
 
             <!-- STEERING -->
             <body name="steering">
-                <joint type="hinge" name="steering_joint" axis="-0.11 0 0.24" pos="0.292836 0 0.512624"/>
+                <joint type="hinge" name="steering_joint" axis="-0.11 0 0.24" pos="0.292836 0 0.512624" limited="true" range="-80 80"/>
                 <geom type="mesh" mesh="steering" mass="2"/>
                 <geom type="mesh" mesh="left_handlebar" mass="0.3"/>
                 <geom type="mesh" mesh="right_handlebar" mass="0.3"/>

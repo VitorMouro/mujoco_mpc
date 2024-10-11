@@ -58,9 +58,16 @@ namespace mjpc
 
         int counter = 0;
 
+        mjtNum *goal_pos = SensorByName(model, data, "goal_pos");
+        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
+        mjtNum goal_displacement[3];
+        mju_sub3(goal_displacement, goal_pos, bicycle_pos);
+        mjtNum goal_distance = mju_norm3(goal_displacement);
+        residual[counter++] = goal_distance;
+
         // ------------ Target speed for the goal heading ------------
         double speed_goal = parameters_[0];
-        double heading_goal = -parameters_[2]; // In radians [-pi, pi]
+        double heading_goal = -parameters_[1]; // In radians [-pi, pi]
 
         double target_velocity[3] = {speed_goal * cos(heading_goal),
                                      speed_goal * sin(heading_goal), 0};
@@ -73,9 +80,8 @@ namespace mjpc
         double velocity_error_norm = mju_norm3(velocity_error);
         residual[counter++] = velocity_error_norm;
 
-        // ------------ Height target ------------
-        double height = SensorByName(model, data, "trace0")[2];
-        residual[counter++] = height - parameters_[1];
+        mjtNum *up_axis = SensorByName(model, data, "bicycle_yaxis");
+        residual[counter++] = up_axis[2] - 1.0;
 
         // ----- action ----- //
         mjtNum *start = data->ctrl + model->nu - 21;
@@ -121,7 +127,7 @@ namespace mjpc
         // Draw the goal heading
         mjtNum size[3] = {0.05, 0.05, residual_.parameters_[0]};
         mjtNum *pos = SensorByName(model, data, "bicycle_pos");
-        double heading = residual_.parameters_[2];
+        double heading = residual_.parameters_[1];
         mjtNum vel[3];
         int joystick = GetVelocityGoal(vel, &heading);
         if (joystick)
@@ -142,20 +148,18 @@ namespace mjpc
 
     void Bicycle::TransitionLocked(mjModel *model, mjData *data)
     {
-        // Freehub (did not work)
-        // printf("Crank: %f\n", data->qvel[9]);
-        // printf("Rear wheel: %f\n", data->qvel[8]);
-        // if (!locked && data->qvel[9] >= data->qvel[8]) {
-        //   data->eq_active[0] = 1;
-        //   model->eq_data[0] = data->qpos[10] - data->qpos[9];
-        //   locked = true;
-        //   printf("Locked mode\n");
-        // }
-        // if (locked && data->qvel[9] < data->qvel[8]) {
-        //   data->eq_active[0] = 0;
-        //   locked = false;
-        //   printf("Unlocked mode\n");
-        // }
-    }
+        mjtNum *current_pos = SensorByName(model, data, "bicycle_pos");
+        double tolerance = 0.5;
+        mjtNum current_goal_pos[3];
+        mju_copy3(current_goal_pos, data->mocap_pos);
 
+        mjtNum goal_displacement[3];
+        mju_sub3(goal_displacement, current_goal_pos, current_pos);
+        mjtNum goal_distance = mju_norm3(goal_displacement);
+        if (goal_distance < tolerance)
+        {
+            current_goal_pos[0] += 7;
+            mju_copy3(data->mocap_pos, current_goal_pos);
+        }
+    }
 } // namespace mjpc
