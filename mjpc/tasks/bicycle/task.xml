@@ -23,6 +23,9 @@
         <body name="goal" mocap="true" pos="5 0 0.5">
             <geom size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
         </body>
+        <body name="goal2" mocap="true" pos="10 0 0.5">
+            <geom size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
+        </body>
     </worldbody>
 
     <sensor>

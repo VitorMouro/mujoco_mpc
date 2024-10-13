@@ -158,7 +158,7 @@ namespace mjpc
         mjtNum goal_distance = mju_norm3(goal_displacement);
         if (goal_distance < tolerance)
         {
-            current_goal_pos[0] += 7;
+            current_goal_pos[0] += 10;
             mju_copy3(data->mocap_pos, current_goal_pos);
         }
     }
