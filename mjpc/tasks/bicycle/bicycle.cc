@@ -192,10 +192,10 @@ namespace mjpc
         double zero3[3] = {0};
         double zero9[9] = {0};
         float width = 0.02;
-        int res = 100;
-        int n_anchors = path_->getNumAnchors();
+        std::vector<double> curve = path_->getCurve();
+        int n_points = curve.size() / 3;
 
-        for (size_t i = 0; i < res; i++)
+        for (size_t i = 0; i < n_points - 1; i++)
         {
             // check max geoms
             if (scene->ngeom >= scene->maxgeom)
@@ -210,10 +210,12 @@ namespace mjpc
 
             // make geometry
             double a[3], b[3];
-            double t0 = (double)i/res * n_anchors;
-            double t1 = (double)(i+1)/res * n_anchors;
-            path_->getPoint(a, t0);
-            path_->getPoint(b, t1);
+            a[0] = curve[i * 3 + 0];
+            a[1] = curve[i * 3 + 1];
+            a[2] = curve[i * 3 + 2];
+            b[0] = curve[(i+1) * 3 + 0];
+            b[1] = curve[(i+1) * 3 + 1];
+            b[2] = curve[(i+1) * 3 + 2];
 
             mjv_makeConnector(
                 &scene->geoms[scene->ngeom], mjGEOM_CAPSULE, width,
@@ -224,7 +226,8 @@ namespace mjpc
 
         // Draw the anchors
         float anchor_color[4] = {0.0, 0.0, 1.0, 1.0};
-        for (int i = 0; i < n_anchors; i++)
+        int num_anchors = path_->getNumAnchors();
+        for (int i = 0; i < num_anchors; i++)
         {
             double pos[3];
             path_->getAnchor(pos, i);
