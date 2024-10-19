@@ -4,6 +4,8 @@
 #include <string>
 
 #include <mujoco/mujoco.h>
+
+#include "path.h"
 #include "mjpc/task.h"
 
 namespace mjpc
@@ -25,7 +27,8 @@ namespace mjpc
                     double *residual) const override;
     };
 
-    Bicycle() : residual_(this) {}
+    Bicycle();
+    ~Bicycle() override;
     void TransitionLocked(mjModel *model, mjData *data) override;
     void ModifyScene(const mjModel *model, const mjData *data,
                      mjvScene *scene) const override;
@@ -39,8 +42,7 @@ namespace mjpc
 
   private:
     ResidualFn residual_;
-    bool locked = true;
-
+    Path *path_;
   };
 } // namespace mjpc
 

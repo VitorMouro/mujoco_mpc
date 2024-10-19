@@ -1,17 +1,3 @@
-// Copyright 2022 DeepMind Technologies Limited
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "mjpc/tasks/bicycle/bicycle.h"
 
 #include <cmath>
@@ -29,6 +15,47 @@ namespace mjpc
         return GetModelPath("bicycle/task.xml");
     }
     std::string Bicycle::Name() const { return "Bicycle"; }
+
+    Bicycle::Bicycle() : residual_(this)
+    {
+        path_ = new Path(20);
+
+        double p0[9] = { 0.0000, 0.0000, 1.0000,
+        -1.0000, 0.0000, 1.0000,
+        1.0000, 0.0000, 1.0000 };
+
+        double p1[9] = { 5.0000, 0.0000, 1.0000,
+        4.0000, 0.0000, 1.0000,
+        6.0000, 0.0000, 1.0000 };
+
+        double p2[9] = { 10.0000, 0.0000, 1.0000,
+        7.0000, 0.0000, 1.0000,
+        13.0000, 0.0000, 1.0000 };
+
+        double p3[9] = { 15.0000, -5.0000, 1.0000,
+        15.0000, -2.0000, 1.0000,
+        15.0000, -8.0000, 1.0000 };
+
+        double p4[9] = { 15.0000, -15.0000, 1.0000,
+        15.0000, -12.0000, 1.0000,
+        15.0000, -18.0000, 1.0000 };
+
+        double p5[9] = { 25.0000, -20.0000, 1.0000,
+        22.2811, -21.2679, 1.0000,
+        27.7189, -18.7321, 1.0000 };
+
+        path_->addPoint(p0);
+        path_->addPoint(p1);
+        path_->addPoint(p2);
+        path_->addPoint(p3);
+        path_->addPoint(p4);
+        path_->addPoint(p5);
+    }
+
+    Bicycle::~Bicycle()
+    {
+        delete path_;
+    }
 
     int GetVelocityGoal(mjtNum *vel, mjtNum *head)
     {
@@ -52,20 +79,33 @@ namespace mjpc
         return 1;
     }
 
-    void Bicycle::ResidualFn::Residual(const mjModel *model, const mjData *data,
-                                       double *residual) const
+    void ActionResidual(const mjModel *model, const mjData *data, double *residual, int *counter)
     {
+        int humanoid_controls = 21;
+        mjtNum *start = data->ctrl + model->nu - humanoid_controls;
+        mju_copy(&residual[*counter], start, humanoid_controls);
+        *counter += humanoid_controls;
+    }
 
-        int counter = 0;
+    void PoseResidual(const mjModel *model, const mjData *data, double *residual, int *counter)
+    {
+        // Arms are at last 6 positions of qpos
+        mjtNum arms[6] = {0.477525, -0.31974, -0.750274, 0.477525, -0.31974, -0.750274};
+        mjtNum arms_error[6];
+        mju_sub(arms_error, data->qpos + model->nq - 6, arms, 6);
+        mju_copy(&residual[*counter], arms_error, 6);
+        *counter += 6;
 
-        mjtNum *goal_pos = SensorByName(model, data, "goal_pos");
-        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
-        mjtNum goal_displacement[3];
-        mju_sub3(goal_displacement, goal_pos, bicycle_pos);
-        mjtNum goal_distance = mju_norm3(goal_displacement);
-        residual[counter++] = goal_distance;
+        // Abdomen is at last model-nq - 21 to model-nq - 18
+        mjtNum abdomen[3] = {0.0, -0.26, 0.0};
+        mjtNum abdomen_error[3];
+        mju_sub(abdomen_error, data->qpos + model->nq - 21, abdomen, 3);
+        mju_copy(&residual[*counter], abdomen_error, 3);
+        *counter += 3;
+    }
 
-        // ------------ Target speed for the goal heading ------------
+    void VelocityResidual(const mjModel *model, const mjData *data, double *residual, int *counter, const std::vector<double> &parameters_)
+    {
         double speed_goal = parameters_[0];
         double heading_goal = -parameters_[1]; // In radians [-pi, pi]
 
@@ -78,72 +118,131 @@ namespace mjpc
         double velocity_error[3];
         mju_sub3(velocity_error, target_velocity, currect_velocity);
         double velocity_error_norm = mju_norm3(velocity_error);
-        residual[counter++] = velocity_error_norm;
+        residual[(*counter)++] = velocity_error_norm;
+    }
 
+    void BalanceResidual(const mjModel *model, const mjData *data, double *residual, int *counter)
+    {
         mjtNum *up_axis = SensorByName(model, data, "bicycle_yaxis");
-        residual[counter++] = up_axis[2] - 1.0;
+        residual[(*counter)++] = up_axis[2] - 1.0;
+    }
 
-        // ----- action ----- //
-        mjtNum *start = data->ctrl + model->nu - 21;
-        mju_copy(&residual[counter], start, 21);
-        counter += 21;
+    void PositionResidual(const mjModel *model, const mjData *data, double *residual, int *counter)
+    {
+        mjtNum *goal_pos = SensorByName(model, data, "goal_pos");
+        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
+        mjtNum goal_displacement[3];
+        mju_sub3(goal_displacement, goal_pos, bicycle_pos);
+        mjtNum goal_distance = mju_norm3(goal_displacement);
+        residual[(*counter)++] = goal_distance;
+    }
 
-        // ------------ Pose target ------------
-        // Arms are at last 6 positions of qpos
-        mjtNum arms[6] = {0.477525, -0.31974, -0.750274, 0.477525, -0.31974, -0.750274};
-        mjtNum arms_error[6];
-        mju_sub(arms_error, data->qpos + model->nq - 6, arms, 6);
-        mju_copy(&residual[counter], arms_error, 6);
-        counter += 6;
-        // Abdomen is at last model-nq - 21 to model-nq - 18
-        mjtNum abdomen[3] = {0.0, -0.26, 0.0};
-        mjtNum abdomen_error[3];
-        mju_sub(abdomen_error, data->qpos + model->nq - 21, abdomen, 3);
-        mju_copy(&residual[counter], abdomen_error, 3);
-        counter += 3;
+    void GoalResidual(const mjModel *model, const mjData *data, double *residual, int *counter, const std::vector<double> &parameters_)
+    {
+        // The bicycle should reach the goal position at a certain speed and heading
+        mjtNum *goal_pos = SensorByName(model, data, "goal_pos");
+        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
+
+        mjtNum goal_displacement[3];
+        mju_sub3(goal_displacement, goal_pos, bicycle_pos);
+        goal_displacement[2] = 0; // Ignore the z-axis
+        mjtNum goal_distance = mju_norm3(goal_displacement);
+        residual[(*counter)++] = goal_distance;
+
+        mjtNum goal_speed = parameters_[0];
+        mjtNum *goal_xaxis = SensorByName(model, data, "goal_zaxis");
+        mjtNum goal_velocity[3];
+        mju_scl3(goal_velocity, goal_xaxis, goal_speed);
+        mjtNum *bicycle_velocity = SensorByName(model, data, "frame_subtreelinvel");
+        mjtNum velocity_error[3];
+        mju_sub3(velocity_error, goal_velocity, bicycle_velocity);
+        residual[(*counter)++] = mju_norm3(velocity_error);
+    }
+
+    void PathResidual(const mjModel *model, const mjData *data, double *residual, int *counter, const std::vector<double> &parameters_) {
+
+    }
+
+    void Bicycle::ResidualFn::Residual(const mjModel *model, const mjData *data,
+                                       double *residual) const
+    {
+        int counter = 0;
+
+        PositionResidual(model, data, residual, &counter);
+        VelocityResidual(model, data, residual, &counter, parameters_);
+        BalanceResidual(model, data, residual, &counter);
+        ActionResidual(model, data, residual, &counter);
+        PoseResidual(model, data, residual, &counter);
+        GoalResidual(model, data, residual, &counter, parameters_);
 
         int user_sensor_dim = 0;
         for (int i = 0; i < model->nsensor; i++)
-        {
             if (model->sensor_type[i] == mjSENS_USER)
-            {
                 user_sensor_dim += model->sensor_dim[i];
-            }
-        }
         if (user_sensor_dim != counter)
-        {
             mju_error_i(
                 "mismatch between total user-sensor dimension "
                 "and actual length of residual %d",
                 counter);
-        }
     }
-
-    constexpr float targetVelocityRgba[4] = {0.6, 0.8, 0.2, 1};
-    constexpr float currentVelocityRgba[4] = {1, 0.3, 0.2, 1};
 
     void Bicycle::ModifyScene(const mjModel *model, const mjData *data, mjvScene *scene) const
     {
-        // Draw the goal heading
-        mjtNum size[3] = {0.05, 0.05, residual_.parameters_[0]};
-        mjtNum *pos = SensorByName(model, data, "bicycle_pos");
-        double heading = residual_.parameters_[1];
-        mjtNum vel[3];
-        int joystick = GetVelocityGoal(vel, &heading);
-        if (joystick)
+        float segment_color[4] = {0.0, 0.0, 0.0, 0.4};
+        double zero3[3] = {0};
+        double zero9[9] = {0};
+        float width = 0.02;
+        int res = 100;
+        int n_anchors = path_->getNumAnchors();
+
+        for (size_t i = 0; i < res; i++)
         {
-            size[2] = mju_norm3(vel);
-            heading *= -1;
+            // check max geoms
+            if (scene->ngeom >= scene->maxgeom)
+            {
+                printf("max geom!!!\n");
+                continue;
+            }
+
+            // initialize geometry
+            mjv_initGeom(&scene->geoms[scene->ngeom], mjGEOM_CAPSULE, zero3, zero3, zero9,
+                         segment_color);
+
+            // make geometry
+            double a[3], b[3];
+            double t0 = (double)i/res * n_anchors;
+            double t1 = (double)(i+1)/res * n_anchors;
+            path_->getPoint(a, t0);
+            path_->getPoint(b, t1);
+
+            mjv_makeConnector(
+                &scene->geoms[scene->ngeom], mjGEOM_CAPSULE, width,
+                a[0], a[1], a[2], b[0], b[1], b[2]);
+            // increment number of geometries
+            scene->ngeom += 1;
         }
-        mjtNum mat_rotatedY[9] = {cos(mjPI / 2), 0, sin(mjPI / 2), 0, 1, 0, -sin(mjPI / 2), 0, cos(mjPI / 2)};
-        mjtNum mat_rotatedX[9] = {1, 0, 0, 0, cos(heading), -sin(heading), 0, sin(heading), cos(heading)};
-        mjtNum mat_res[9];
-        mju_mulMatMat(mat_res, mat_rotatedY, mat_rotatedX, 3, 3, 3);
-        AddGeom(scene, mjGEOM_ARROW, size, pos, mat_res, targetVelocityRgba);
-        // Draw the current heading
-        // double *current_velocity = SensorByName(model, data, "frame_subtreelinvel");
-        // mjtNum mat_current_heading[9];
-        // AddGeom(scene, mjGEOM_ARROW, size, pos, R, currentVelocityRgba);
+
+        // Draw the anchors
+        float anchor_color[4] = {0.0, 0.0, 1.0, 1.0};
+        for (int i = 0; i < n_anchors; i++)
+        {
+            double pos[3];
+            path_->getAnchor(pos, i);
+            double size[3] = {0.1, 0.1, 0.1};
+            AddGeom(scene, mjGEOM_SPHERE, size, pos, nullptr, anchor_color);
+        }
+
+        // Draw the controls
+        // float control_color [4] = {1.0, 0.0, 0.0, 1.0};
+        // for (int i = 0; i < n_anchors; i++)
+        // {
+        //     double a[3], b[3];
+        //     path_->getLeftControl(a, i);
+        //     path_->getRightControl(b, i);
+        //     double size[3] = {0.05, 0.05, 0.05};
+        //     AddGeom(scene, mjGEOM_SPHERE, size, a, nullptr, control_color);
+        //     AddGeom(scene, mjGEOM_SPHERE, size, b, nullptr, control_color);
+        // }
     }
 
     void Bicycle::TransitionLocked(mjModel *model, mjData *data)
@@ -158,7 +257,7 @@ namespace mjpc
         mjtNum goal_distance = mju_norm3(goal_displacement);
         if (goal_distance < tolerance)
         {
-            current_goal_pos[0] += 10;
+            current_goal_pos[0] += 3;
             mju_copy3(data->mocap_pos, current_goal_pos);
         }
     }
