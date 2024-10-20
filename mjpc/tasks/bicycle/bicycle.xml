@@ -101,7 +101,7 @@
     
     <equality>
         <!-- CHAIN DRIVE 2.75:1 -->
-        <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 2.75 0 0 0"/>
+        <joint name="chain_drive" joint1="rear_wheel_joint" joint2="crank_joint" polycoef="0 2 0 0 0"/>
     </equality>
 
     <contact>

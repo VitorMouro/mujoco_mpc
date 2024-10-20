@@ -20,39 +20,7 @@ namespace mjpc
 
     Bicycle::Bicycle() : residual_(this)
     {
-        path_ = new SplinePath(50);
-        constexpr float height = 0.6;
-
-        // double p0[9] = {0.0000, 0.0000, height,
-        //                 -1.0000, 0.0000, height,
-        //                 1.0000, 0.0000, height};
-
-        // double p1[9] = {5.0000, 0.0000, height,
-        //                 4.0000, 0.0000, height,
-        //                 6.0000, 0.0000, height};
-
-        // double p2[9] = {10.0000, 0.0000, height,
-        //                 7.0000, 0.0000, height,
-        //                 13.0000, 0.0000, height};
-
-        // double p3[9] = {15.0000, -5.0000, height,
-        //                 15.0000, -2.0000, height,
-        //                 15.0000, -8.0000, height};
-
-        // double p4[9] = {15.0000, -15.0000, height,
-        //                 15.0000, -12.0000, height,
-        //                 15.0000, -18.0000, height};
-
-        // double p5[9] = {25.0000, -20.0000, height,
-        //                 22.2811, -21.2679, height,
-        //                 27.7189, -18.7321, height};
-
-        // path_->addPoint(p0);
-        // path_->addPoint(p1);
-        // path_->addPoint(p2);
-        // path_->addPoint(p3);
-        // path_->addPoint(p4);
-        // path_->addPoint(p5);
+        path_ = new SplinePath(20);
 
         // Load points from csv (9 doubles per line)
         std::string path_csv = "../mjpc/tasks/bicycle/path.csv";
@@ -71,10 +39,7 @@ namespace mjpc
                     std::getline(iss, val, ',');
                     p[i] = std::stod(val);
                 }
-                // Change the height
-                p[2] = height;
-                p[5] = height;
-                p[8] = height;
+
                 path_->addPoint(p);
             }
             file.close();
