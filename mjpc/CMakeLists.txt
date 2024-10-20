@@ -38,8 +38,8 @@ add_library(
   tasks/tasks.h
   tasks/bicycle/bicycle.cc
   tasks/bicycle/bicycle.h
-  tasks/bicycle/path.cc
-  tasks/bicycle/path.h
+        tasks/bicycle/SplinePath.cc
+        tasks/bicycle/SplinePath.h
   tasks/acrobot/acrobot.cc
   tasks/acrobot/acrobot.h
   tasks/allegro/allegro.cc

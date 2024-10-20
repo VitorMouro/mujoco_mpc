@@ -17,26 +17,29 @@
         <numeric name="gradient_spline_points" data="5"/>
         <!-- Parameters -->
         <numeric name="residual_Speed Goal" data="3.2 0 20"/>
-        <numeric name="residual_Heading Goal" data="0 -3.1415 3.1415"/>
+        <!-- <numeric name="residual_Heading Goal" data="0 -3.1415 3.1415"/> -->
     </custom>
 
-    <worldbody>
+    <!-- <worldbody>
         <body name="goal" mocap="true" pos="3 0 0.5">
             <geom size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
             <geom type="box" size="0.1 0.05 0.05" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2" pos="0.2 0 0"/>
         </body>
-    </worldbody>
+    </worldbody> -->
 
     <sensor>
         <!-- Weights -->
-        <user name="Position" dim="1" user="0 0.1 0 3.0"/>
+        <!-- <user name="Position" dim="1" user="0 0.1 0 3.0"/>
         <user name="Velocity" dim="1" user="0 0 0 3.0"/>
-        <user name="Balance" dim="1" user="3 1 0.0 1 0.3"/>
+        <user name="Balance" dim="1" user="3 1 0.0 1 0.3"/> -->
         <user name="Action" dim="21" user="3 0.05 0.0 0.1 0.3" />
-        <user name="Pose" dim="9" user="0 0 0 1.0"/>
+        <!-- <user name="Pose" dim="9" user="0 0 0 1.0"/> -->
         <!-- StateGoal weights -->
-        <user name="Pos Goal" dim="1" user="0 0.1 0 1.0"/>
-        <user name="Quat Goal" dim="1" user="0 0.1 0 1.0"/>
+        <!-- <user name="Pos Goal" dim="1" user="0 0.1 0 1.0"/>
+        <user name="Quat Goal" dim="1" user="0 0.1 0 1.0"/> -->
+        <!-- Path weights -->
+        <user name="Path Position" dim="1" user="0 1.0 0 10.0"/>
+        <user name="Path Velocity" dim="1" user="0 0.1 0 1.0"/>
 
         <!-- Trace -->
         <framepos name="trace0" objtype="site" objname="tip"/>
@@ -49,11 +52,11 @@
         <frameyaxis name="bicycle_yaxis" objtype="body" objname="bicycle"/>
         <framezaxis name="bicycle_zaxis" objtype="body" objname="bicycle"/>
 
-        <framepos name="goal_pos" objtype="body" objname="goal"/>
+        <!-- <framepos name="goal_pos" objtype="body" objname="goal"/>
         <framequat name="goal_quat" objtype="body" objname="goal"/>
         <framexaxis name="goal_xaxis" objtype="body" objname="goal"/>
         <frameyaxis name="goal_yaxis" objtype="body" objname="goal"/>
-        <framezaxis name="goal_zaxis" objtype="body" objname="goal"/>
+        <framezaxis name="goal_zaxis" objtype="body" objname="goal"/> -->
     </sensor>
 
     <contact>
@@ -75,8 +78,8 @@
     <equality>
         <connect site1="left_hand_site" site2="left_steering_site"/>
         <connect site1="right_hand_site" site2="right_steering_site"/>
-        <weld site1="left_foot_site" site2="left_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/>
-        <weld site1="right_foot_site" site2="right_pedal_site" solimp="0.95 0.99 0.001 0.5 2"/>
+        <weld site1="left_foot_site" site2="left_pedal_site" solimp="0.98 0.999 0.001 0.5 2"/>
+        <weld site1="right_foot_site" site2="right_pedal_site" solimp="0.98 0.999 0.001 0.5 2"/>
         <connect site1="butt_site" site2="seat_site" solimp="0.95 0.99 0.001 0.5 2"/>
     </equality>
 

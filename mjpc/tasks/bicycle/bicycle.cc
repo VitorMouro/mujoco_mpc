@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 #include <mujoco/mujoco.h>
 #include "mjpc/task.h"
@@ -18,38 +20,68 @@ namespace mjpc
 
     Bicycle::Bicycle() : residual_(this)
     {
-        path_ = new Path(20);
+        path_ = new SplinePath(50);
+        constexpr float height = 0.6;
 
-        double p0[9] = { 0.0000, 0.0000, 1.0000,
-        -1.0000, 0.0000, 1.0000,
-        1.0000, 0.0000, 1.0000 };
+        // double p0[9] = {0.0000, 0.0000, height,
+        //                 -1.0000, 0.0000, height,
+        //                 1.0000, 0.0000, height};
 
-        double p1[9] = { 5.0000, 0.0000, 1.0000,
-        4.0000, 0.0000, 1.0000,
-        6.0000, 0.0000, 1.0000 };
+        // double p1[9] = {5.0000, 0.0000, height,
+        //                 4.0000, 0.0000, height,
+        //                 6.0000, 0.0000, height};
 
-        double p2[9] = { 10.0000, 0.0000, 1.0000,
-        7.0000, 0.0000, 1.0000,
-        13.0000, 0.0000, 1.0000 };
+        // double p2[9] = {10.0000, 0.0000, height,
+        //                 7.0000, 0.0000, height,
+        //                 13.0000, 0.0000, height};
 
-        double p3[9] = { 15.0000, -5.0000, 1.0000,
-        15.0000, -2.0000, 1.0000,
-        15.0000, -8.0000, 1.0000 };
+        // double p3[9] = {15.0000, -5.0000, height,
+        //                 15.0000, -2.0000, height,
+        //                 15.0000, -8.0000, height};
 
-        double p4[9] = { 15.0000, -15.0000, 1.0000,
-        15.0000, -12.0000, 1.0000,
-        15.0000, -18.0000, 1.0000 };
+        // double p4[9] = {15.0000, -15.0000, height,
+        //                 15.0000, -12.0000, height,
+        //                 15.0000, -18.0000, height};
 
-        double p5[9] = { 25.0000, -20.0000, 1.0000,
-        22.2811, -21.2679, 1.0000,
-        27.7189, -18.7321, 1.0000 };
+        // double p5[9] = {25.0000, -20.0000, height,
+        //                 22.2811, -21.2679, height,
+        //                 27.7189, -18.7321, height};
 
-        path_->addPoint(p0);
-        path_->addPoint(p1);
-        path_->addPoint(p2);
-        path_->addPoint(p3);
-        path_->addPoint(p4);
-        path_->addPoint(p5);
+        // path_->addPoint(p0);
+        // path_->addPoint(p1);
+        // path_->addPoint(p2);
+        // path_->addPoint(p3);
+        // path_->addPoint(p4);
+        // path_->addPoint(p5);
+
+        // Load points from csv (9 doubles per line)
+        std::string path_csv = "../mjpc/tasks/bicycle/path.csv";
+
+        std::ifstream file(path_csv);
+        if (file.is_open())
+        {
+            std::string line;
+            while (std::getline(file, line))
+            {
+                std::istringstream iss(line);
+                double p[9];
+                for (int i = 0; i < 9; i++)
+                {
+                    std::string val;
+                    std::getline(iss, val, ',');
+                    p[i] = std::stod(val);
+                }
+                // Change the height
+                p[2] = height;
+                p[5] = height;
+                p[8] = height;
+                path_->addPoint(p);
+            }
+            file.close();
+            std::cout << "Loaded " << path_->getNumAnchors() << " points from " << path_csv << std::endl;
+        } else {
+            mju_error("Could not open file %s", path_csv.c_str());
+        }
     }
 
     Bicycle::~Bicycle()
@@ -159,8 +191,70 @@ namespace mjpc
         residual[(*counter)++] = mju_norm3(velocity_error);
     }
 
-    void PathResidual(const mjModel *model, const mjData *data, double *residual, int *counter, const std::vector<double> &parameters_) {
+    void PathResidual(const mjModel *model, const mjData *data, double *residual, int *counter, const std::vector<double> &parameters_, const SplinePath *path)
+    {
+        std::vector<double> curve = path->getCurve();
 
+        // Closest point on curve
+        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
+        int closest_point_i = 0;
+        double closest_point[3];
+        closest_point[0] = curve[0];
+        closest_point[1] = curve[1];
+        closest_point[2] = curve[2];
+        for (int i = 1; i < curve.size() / 3; i++)
+        {
+            double current_point[3] = {curve[i * 3], curve[i * 3 + 1], curve[i * 3 + 2]};
+            mjtNum dist = mju_dist3(bicycle_pos, current_point);
+            mjtNum cur_distance = mju_dist3(bicycle_pos, closest_point);
+            if (cur_distance >= dist)
+            {
+                closest_point[0] = curve[i * 3];
+                closest_point[1] = curve[i * 3 + 1];
+                closest_point[2] = curve[i * 3 + 2];
+                closest_point_i = i;
+            }
+        }
+
+        mjtNum dist = mju_dist3(bicycle_pos, closest_point);
+        residual[(*counter)++] = dist;
+
+        // Velocity target on the point
+        mjtNum target_speed = parameters_[0];
+        double p0[3], p1[3];
+        double t = (double)closest_point_i / (curve.size() / 3) * (path->getNumAnchors() - 1);
+        double k = 0.01;
+        if (closest_point_i == 0)
+        {
+            p0[0] = closest_point[0];
+            p0[1] = closest_point[1];
+            p0[2] = closest_point[2];
+        }
+        else
+        {
+            path->getPoint(p0, t - k);
+        }
+        if (closest_point_i == curve.size() / 3 - 1)
+        {
+            p1[0] = closest_point[0];
+            p1[1] = closest_point[1];
+            p1[2] = closest_point[2];
+        }
+        else
+        {
+            path->getPoint(p1, t + k);
+        }
+        // Unit vector between points
+        double vel[3];
+        mju_sub3(vel, p1, p0);
+        mju_normalize3(vel);
+        mju_scl3(vel, vel, target_speed);
+
+        // Calculate velocity residual
+        mjtNum *current_vel = SensorByName(model, data, "frame_subtreelinvel");
+        mjtNum velocity_error[3];
+        mju_sub3(velocity_error, current_vel, vel);
+        residual[(*counter)++] = mju_norm3(velocity_error);
     }
 
     void Bicycle::ResidualFn::Residual(const mjModel *model, const mjData *data,
@@ -168,12 +262,13 @@ namespace mjpc
     {
         int counter = 0;
 
-        PositionResidual(model, data, residual, &counter);
-        VelocityResidual(model, data, residual, &counter, parameters_);
-        BalanceResidual(model, data, residual, &counter);
+        // PositionResidual(model, data, residual, &counter);
+        // VelocityResidual(model, data, residual, &counter, parameters_);
+        // BalanceResidual(model, data, residual, &counter);
         ActionResidual(model, data, residual, &counter);
-        PoseResidual(model, data, residual, &counter);
-        GoalResidual(model, data, residual, &counter, parameters_);
+        // PoseResidual(model, data, residual, &counter);
+        // GoalResidual(model, data, residual, &counter, parameters_);
+        PathResidual(model, data, residual, &counter, parameters_, dynamic_cast<const Bicycle *>(task_)->getPath());
 
         int user_sensor_dim = 0;
         for (int i = 0; i < model->nsensor; i++)
@@ -188,7 +283,7 @@ namespace mjpc
 
     void Bicycle::ModifyScene(const mjModel *model, const mjData *data, mjvScene *scene) const
     {
-        float segment_color[4] = {0.0, 0.0, 0.0, 0.4};
+        float segment_color[4] = {1.0, 0.0, 0.0, 0.3};
         double zero3[3] = {0};
         double zero9[9] = {0};
         float width = 0.02;
@@ -213,9 +308,9 @@ namespace mjpc
             a[0] = curve[i * 3 + 0];
             a[1] = curve[i * 3 + 1];
             a[2] = curve[i * 3 + 2];
-            b[0] = curve[(i+1) * 3 + 0];
-            b[1] = curve[(i+1) * 3 + 1];
-            b[2] = curve[(i+1) * 3 + 2];
+            b[0] = curve[(i + 1) * 3 + 0];
+            b[1] = curve[(i + 1) * 3 + 1];
+            b[2] = curve[(i + 1) * 3 + 2];
 
             mjv_makeConnector(
                 &scene->geoms[scene->ngeom], mjGEOM_CAPSULE, width,
@@ -225,7 +320,7 @@ namespace mjpc
         }
 
         // Draw the anchors
-        float anchor_color[4] = {0.0, 0.0, 1.0, 1.0};
+        float anchor_color[4] = {0.0, 0.0, 1.0, 0.3};
         int num_anchors = path_->getNumAnchors();
         for (int i = 0; i < num_anchors; i++)
         {
@@ -235,17 +330,74 @@ namespace mjpc
             AddGeom(scene, mjGEOM_SPHERE, size, pos, nullptr, anchor_color);
         }
 
-        // Draw the controls
-        // float control_color [4] = {1.0, 0.0, 0.0, 1.0};
-        // for (int i = 0; i < n_anchors; i++)
+        // Draw closest_point
+        mjtNum *bicycle_pos = SensorByName(model, data, "bicycle_pos");
+        double closest_point[3];
+        // int closest_point_i = 0;
+        closest_point[0] = curve[0];
+        closest_point[1] = curve[1];
+        closest_point[2] = curve[2];
+        for (int i = 1; i < curve.size() / 3; i++)
+        {
+            double current_point[3] = {curve[i * 3], curve[i * 3 + 1], curve[i * 3 + 2]};
+            mjtNum dist = mju_dist3(bicycle_pos, current_point);
+            mjtNum cur_distance = mju_dist3(bicycle_pos, closest_point);
+            if (cur_distance >= dist)
+            {
+                closest_point[0] = curve[i * 3];
+                closest_point[1] = curve[i * 3 + 1];
+                closest_point[2] = curve[i * 3 + 2];
+                // closest_point_i = i;
+            }
+        }
+        const double c_size[3] = {0.1, 0.1, 0.1};
+        const float c_color[4] = {0.0, 1.0, 0.0, 0.3};
+        AddGeom(scene, mjGEOM_SPHERE, c_size, closest_point, nullptr, c_color);
+
+        // // Draw current and target velocity
+        // mjtNum *currentVel = SensorByName(model, data, "frame_subtreelinvel");
+        // mjv_initGeom(&scene->geoms[scene->ngeom], mjGEOM_ARROW, zero3, zero3, zero9, c_color);
+        // mjv_makeConnector(&scene->geoms[scene->ngeom], mjGEOM_ARROW, 0.05,
+        //                   bicycle_pos[0], bicycle_pos[1], bicycle_pos[2],
+        //                   bicycle_pos[0] + currentVel[0], bicycle_pos[1] + currentVel[1], bicycle_pos[2] + currentVel[2]);
+        // scene->ngeom += 1;
+
+        // // Velocity target on the point
+        // mjtNum target_speed = residual_.parameters_[0];
+        // double p0[3], p1[3];
+        // double t = (double)closest_point_i / (curve.size() / 3) * (path_->getNumAnchors() - 1);
+        // double k = 0.01;
+        // if (closest_point_i == 0)
         // {
-        //     double a[3], b[3];
-        //     path_->getLeftControl(a, i);
-        //     path_->getRightControl(b, i);
-        //     double size[3] = {0.05, 0.05, 0.05};
-        //     AddGeom(scene, mjGEOM_SPHERE, size, a, nullptr, control_color);
-        //     AddGeom(scene, mjGEOM_SPHERE, size, b, nullptr, control_color);
+        //     p0[0] = closest_point[0];
+        //     p0[1] = closest_point[1];
+        //     p0[2] = closest_point[2];
         // }
+        // else
+        // {
+        //     path_->getPoint(p0, t - k);
+        // }
+        // if (closest_point_i == curve.size() / 3 - 1)
+        // {
+        //     p1[0] = closest_point[0];
+        //     p1[1] = closest_point[1];
+        //     p1[2] = closest_point[2];
+        // }
+        // else
+        // {
+        //     path_->getPoint(p1, t + k);
+        // }
+        // // Unit vector between points
+        // double vel[3];
+        // mju_sub3(vel, p1, p0);
+        // mju_normalize3(vel);
+        // mju_scl3(vel, vel, target_speed);
+
+        // mjv_initGeom(&scene->geoms[scene->ngeom], mjGEOM_ARROW, zero3, zero3, zero9, c_color);
+        // mjv_makeConnector(&scene->geoms[scene->ngeom], mjGEOM_ARROW, 0.05,
+        //                   closest_point[0], closest_point[1], closest_point[2],
+        //                   closest_point[0] + vel[0], closest_point[1] + vel[1], closest_point[2] + vel[2]);
+        // scene->ngeom += 1;
     }
 
     void Bicycle::TransitionLocked(mjModel *model, mjData *data)

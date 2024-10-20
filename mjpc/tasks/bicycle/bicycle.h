@@ -5,7 +5,7 @@
 
 #include <mujoco/mujoco.h>
 
-#include "path.h"
+#include "SplinePath.h"
 #include "mjpc/task.h"
 
 namespace mjpc
@@ -15,6 +15,7 @@ namespace mjpc
   public:
     std::string Name() const override;
     std::string XmlPath() const override;
+    const SplinePath *getPath() const { return path_; }
 
     class ResidualFn : public BaseResidualFn
     {
@@ -42,7 +43,7 @@ namespace mjpc
 
   private:
     ResidualFn residual_;
-    Path *path_;
+    SplinePath *path_;
   };
 } // namespace mjpc
 
